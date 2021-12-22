@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring
 
-from flask import Flask
+from flask import Flask, jsonify
 from config import Config
 
 from flask_migrate import Migrate
@@ -21,9 +21,17 @@ def hello():
     return "Hello World!", 200
 
 
-from schemas import many_product_schema
+from schemas import many_product_schema, one_product_schema
 
 @app.route(f'{Config.BASE_URL}/products', methods=['GET'])
-def get_many_product():
-    products = db.session.query(Product).all() # SQLAlchemy request => 'SELECT * FROM products'
-    return many_product_schema.jsonify(products), 200
+@app.route(f'{Config.BASE_URL}/products/<int:id>', methods=['GET'])
+def get_many_product(id=None):
+    if id:
+        product = db.session.query(Product).get(id) # SQLAlchemy request => 'SELECT * FROM products WHERE id = {id}'
+        if product: 
+            return one_product_schema.jsonify(product), 200
+        else:
+            return jsonify({"message": f"Product {id} not found"}), 404
+    else:
+        products = db.session.query(Product).all() # SQLAlchemy request => 'SELECT * FROM products'
+        return many_product_schema.jsonify(products), 200
