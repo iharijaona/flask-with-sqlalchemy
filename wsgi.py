@@ -52,3 +52,14 @@ def create_product():
         return one_product_schema.jsonify(product), 200
     else:
         return jsonify({"message": "Unprocessable Entity" }), 422
+
+
+@app.route(f'{Config.BASE_URL}/products/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    if not id is None:
+        product = db.session.query(Product).get(id) # SQLAlchemy request => 'SELECT * FROM products WHERE id = {id}'
+        if not product is None: 
+            db.session.delete(product)
+            db.session.commit()
+            return jsonify({"message": f"Product {id} deleted"}), 200
+    return jsonify({"message": f"Product {id} not found"}), 404

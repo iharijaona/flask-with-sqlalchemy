@@ -9,4 +9,4 @@ class Product(db.Model):
     description = db.Column(db.Text())
 
     def __repr__(self):
-        return '<{} : {}>'.format(self.id, self.name)
+        return '< {} : {} >'.format(self.id, self.name)
