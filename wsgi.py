@@ -63,3 +63,19 @@ def delete_product(id):
             db.session.commit()
             return jsonify({"message": f"Product {id} deleted"}), 200
     return jsonify({"message": f"Product {id} not found"}), 404
+
+
+@app.route(f'{Config.BASE_URL}/products/<int:id>', methods=['PATCH'])
+def update_product(id):
+    if not id is None:
+        data = request.json
+        if isinstance(data, dict) and (data.get("name") or data.get("description")):
+            product = db.session.query(Product).get(id) # SQLAlchemy request => 'SELECT * FROM products WHERE id = {id}'
+            if not product is None: 
+                product.name = data.get("name", product.name)
+                product.description = data.get("description", product.description)
+                db.session.commit()
+                return one_product_schema.jsonify(product), 200
+        else:
+            return jsonify({"message": "Unprocessable Entity" }), 422
+    return jsonify({"message": f"Product {id} not found"}), 404
